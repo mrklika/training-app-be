@@ -14,10 +14,6 @@
     "title": {
       "type": "string"
     },
-    "slug": {
-      "type": "uid",
-      "targetField": "title"
-    },
     "category": {
       "type": "relation",
       "relation": "manyToOne",

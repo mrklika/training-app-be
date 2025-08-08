@@ -15,9 +15,6 @@
     "name": {
       "type": "string"
     },
-    "slug": {
-      "type": "uid"
-    },
     "trainings": {
       "type": "relation",
       "relation": "oneToMany",
