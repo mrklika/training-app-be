@@ -18,10 +18,10 @@
     "slug": {
       "type": "uid"
     },
-    "articles": {
+    "trainings": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::article.article",
+      "target": "api::training.training",
       "mappedBy": "category"
     },
     "description": {

@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_trainings",
+  "info": {
+    "singularName": "user-training",
+    "pluralName": "user-trainings",
+    "displayName": "UserTraining"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "dueDate": {
+      "type": "date"
+    },
+    "student": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "user_trainings"
+    },
+    "training": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::training.training",
+      "inversedBy": "user_trainings"
+    }
+  }
+}

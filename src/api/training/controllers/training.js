@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- *  author controller
+ * training controller
  */
 
 const { createCoreController } = require('@strapi/strapi').factories;
 
-module.exports = createCoreController('api::author.author');
+module.exports = createCoreController('api::training.training');
