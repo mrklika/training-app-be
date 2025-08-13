@@ -20,9 +20,6 @@
       "relation": "oneToMany",
       "target": "api::training.training",
       "mappedBy": "category"
-    },
-    "description": {
-      "type": "text"
     }
   }
 }

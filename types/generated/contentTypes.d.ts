@@ -388,7 +388,6 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -412,7 +411,7 @@ export interface ApiTrainingTraining extends Struct.CollectionTypeSchema {
     singularName: 'training';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     author: Schema.Attribute.Relation<
@@ -436,7 +435,7 @@ export interface ApiTrainingTraining extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    user_trainings: Schema.Attribute.Relation<
+    userTrainings: Schema.Attribute.Relation<
       'oneToMany',
       'api::user-training.user-training'
     >;
@@ -452,9 +451,14 @@ export interface ApiUserTrainingUserTraining
     singularName: 'user-training';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
+    certification: Schema.Attribute.Media<
+      'images' | 'videos' | 'audios' | 'files'
+    >;
+    completed: Schema.Attribute.Boolean;
+    completeDate: Schema.Attribute.Date;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -934,6 +938,10 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
+    authoredTrainings: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::training.training'
+    >;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -963,7 +971,6 @@ export interface PluginUsersPermissionsUser
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    trainings: Schema.Attribute.Relation<'oneToMany', 'api::training.training'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

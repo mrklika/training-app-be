@@ -7,7 +7,7 @@
     "displayName": "UserTraining"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -24,7 +24,23 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::training.training",
-      "inversedBy": "user_trainings"
+      "inversedBy": "userTrainings"
+    },
+    "completed": {
+      "type": "boolean"
+    },
+    "completeDate": {
+      "type": "date"
+    },
+    "certification": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "videos",
+        "audios",
+        "files"
+      ]
     }
   }
 }

@@ -72,7 +72,7 @@
       "target": "api::user-training.user-training",
       "mappedBy": "student"
     },
-    "trainings": {
+    "authoredTrainings": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::training.training",

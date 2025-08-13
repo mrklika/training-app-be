@@ -7,7 +7,7 @@
     "displayName": "Training"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -37,9 +37,9 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "trainings"
+      "inversedBy": "authoredTrainings"
     },
-    "user_trainings": {
+    "userTrainings": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::user-training.user-training",
