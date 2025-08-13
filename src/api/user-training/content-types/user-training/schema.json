@@ -27,7 +27,8 @@
       "inversedBy": "userTrainings"
     },
     "completed": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "completeDate": {
       "type": "date"
