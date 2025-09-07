@@ -385,6 +385,8 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
+      Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -400,6 +402,52 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
+  collectionName: 'companies';
+  info: {
+    displayName: 'Company';
+    pluralName: 'companies';
+    singularName: 'company';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    address: Schema.Attribute.String & Schema.Attribute.Required;
+    categories: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::category.category'
+    >;
+    city: Schema.Attribute.String & Schema.Attribute.Required;
+    country: Schema.Attribute.String & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::company.company'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    trainings: Schema.Attribute.Relation<'oneToMany', 'api::training.training'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    users: Schema.Attribute.Relation<
+      'oneToMany',
+      'plugin::users-permissions.user'
+    >;
+    userTrainings: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-training.user-training'
+    >;
+    vatId: Schema.Attribute.BigInteger;
+    zip: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -419,6 +467,8 @@ export interface ApiTrainingTraining extends Struct.CollectionTypeSchema {
       'plugin::users-permissions.user'
     >;
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
+      Schema.Attribute.Required;
     cover: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -457,6 +507,8 @@ export interface ApiUserTrainingUserTraining
     certification: Schema.Attribute.Media<
       'images' | 'videos' | 'audios' | 'files'
     >;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
+      Schema.Attribute.Required;
     completed: Schema.Attribute.Boolean;
     completeDate: Schema.Attribute.Date;
     createdAt: Schema.Attribute.DateTime;
@@ -943,6 +995,8 @@ export interface PluginUsersPermissionsUser
       'api::training.training'
     >;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
+      Schema.Attribute.Required;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     createdAt: Schema.Attribute.DateTime;
@@ -953,6 +1007,7 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    fullName: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -974,16 +1029,16 @@ export interface PluginUsersPermissionsUser
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    user_trainings: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::user-training.user-training'
-    >;
     username: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
+    userTrainings: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-training.user-training'
+    >;
   };
 }
 
@@ -998,6 +1053,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::category.category': ApiCategoryCategory;
+      'api::company.company': ApiCompanyCompany;
       'api::training.training': ApiTrainingTraining;
       'api::user-training.user-training': ApiUserTrainingUserTraining;
       'plugin::content-releases.release': PluginContentReleasesRelease;

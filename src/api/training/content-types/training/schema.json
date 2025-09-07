@@ -44,6 +44,13 @@
       "relation": "oneToMany",
       "target": "api::user-training.user-training",
       "mappedBy": "training"
+    },
+    "company": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::company.company",
+      "inversedBy": "trainings",
+      "required": true
     }
   }
 }

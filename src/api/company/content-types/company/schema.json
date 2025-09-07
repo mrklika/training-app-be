@@ -1,0 +1,61 @@
+{
+  "kind": "collectionType",
+  "collectionName": "companies",
+  "info": {
+    "singularName": "company",
+    "pluralName": "companies",
+    "displayName": "Company"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string",
+      "required": true
+    },
+    "city": {
+      "type": "string",
+      "required": true
+    },
+    "zip": {
+      "type": "string",
+      "required": true
+    },
+    "country": {
+      "type": "string",
+      "required": true
+    },
+    "vatId": {
+      "type": "biginteger"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::category.category",
+      "mappedBy": "company"
+    },
+    "trainings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::training.training",
+      "mappedBy": "company"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "company"
+    },
+    "userTrainings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::user-training.user-training",
+      "mappedBy": "company"
+    }
+  }
+}

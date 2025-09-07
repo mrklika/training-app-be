@@ -18,7 +18,7 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "user_trainings"
+      "inversedBy": "userTrainings"
     },
     "training": {
       "type": "relation",
@@ -41,6 +41,13 @@
         "audios",
         "files"
       ]
+    },
+    "company": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::company.company",
+      "inversedBy": "userTrainings",
+      "required": true
     }
   }
 }
