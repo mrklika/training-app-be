@@ -21,9 +21,6 @@ export default () => {
             }
           );
           if (user) {
-
-            console.log(user);
-            
             ctx.state.user = {
               id: user.documentId ?? undefined,
               companyId: user.company?.documentId ?? undefined,
