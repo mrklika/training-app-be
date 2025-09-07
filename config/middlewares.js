@@ -9,4 +9,6 @@ module.exports = [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
+  'global::current-user',
+  'global::attach-company',
 ];
