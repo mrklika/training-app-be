@@ -457,7 +457,7 @@ export interface ApiUserTrainingUserTraining
     certification: Schema.Attribute.Media<
       'images' | 'videos' | 'audios' | 'files'
     >;
-    completed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    completed: Schema.Attribute.Boolean;
     completeDate: Schema.Attribute.Date;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -953,7 +953,6 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
-    fullName: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

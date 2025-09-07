@@ -77,10 +77,6 @@
       "relation": "oneToMany",
       "target": "api::training.training",
       "mappedBy": "author"
-    },
-    "fullName": {
-      "type": "string",
-      "required": true
     }
   }
 }
