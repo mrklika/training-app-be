@@ -26,9 +26,6 @@
       "target": "api::training.training",
       "inversedBy": "userTrainings"
     },
-    "completed": {
-      "type": "boolean"
-    },
     "completeDate": {
       "type": "date"
     },

@@ -34,12 +34,6 @@
         "audios"
       ]
     },
-    "author": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "authoredTrainings"
-    },
     "userTrainings": {
       "type": "relation",
       "relation": "oneToMany",

@@ -462,10 +462,6 @@ export interface ApiTrainingTraining extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    author: Schema.Attribute.Relation<
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
     company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
       Schema.Attribute.Required;
@@ -512,7 +508,6 @@ export interface ApiUserTrainingUserTraining
     >;
     company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
       Schema.Attribute.Required;
-    completed: Schema.Attribute.Boolean;
     completeDate: Schema.Attribute.Date;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -993,13 +988,8 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
-    authoredTrainings: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::training.training'
-    >;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
-      Schema.Attribute.Required;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     createdAt: Schema.Attribute.DateTime;
