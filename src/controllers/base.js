@@ -224,4 +224,28 @@ module.exports = (uid) =>
       return await super.delete(ctx);
     },
 
+    /**
+     * Count records by companyId filter.
+     */
+    async count(ctx) {
+      await this.populateUserFromToken(ctx);
+      const user = ctx.state.user;
+
+      if (!user?.companyId) {
+        return ctx.unauthorized('User has no company');
+      }
+
+      const sanitizedQuery = await this.sanitizeQuery(ctx);
+
+      // Apply company filter
+      sanitizedQuery.filters = {
+        ...sanitizedQuery.filters,
+        company: { documentId: user.companyId },
+      };
+
+      const total = await strapi.documents(uid).count(sanitizedQuery);
+
+      return { count: total };
+    },
+
   }));

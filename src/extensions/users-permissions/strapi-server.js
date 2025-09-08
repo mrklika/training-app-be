@@ -14,6 +14,33 @@ module.exports = (plugin) => {
     return sanitizedUser;
   };
 
+  const populateUserFromToken = async (ctx) => {
+    const authHeader = ctx.request.header.authorization;
+    if (!authHeader) return;
+
+    const token = authHeader.replace('Bearer ', '');
+    try {
+      const { id } = await strapi.plugin('users-permissions').service('jwt').verify(token);
+
+      if (id) {
+        const user = await strapi.entityService.findOne(
+          'plugin::users-permissions.user',
+          id,
+          { populate: ['company'] }
+        );
+
+        if (user) {
+          ctx.state.user = {
+            id: user.documentId ?? undefined,
+            companyId: user.company?.documentId ?? undefined,
+          };
+        }
+      }
+    } catch (err) {
+      // ignore invalid token
+    }
+  };
+
   /**
    * Override the `me` controller for the users-permissions plugin.
    * Returns the currently authenticated user with their company populated,
@@ -33,6 +60,27 @@ module.exports = (plugin) => {
 
     // Return sanitized user data in the response body
     ctx.body = sanitizeOutput(user);
+  };
+
+  /**
+   * GET /users override
+   */
+  plugin.controllers.user.find = async (ctx) => {
+    await populateUserFromToken(ctx);
+    const user = ctx.state.user;
+
+    if (!user?.companyId) return ctx.unauthorized('User has no company');
+
+    ctx.query.filters = {
+      ...ctx.query.filters,
+      company: { documentId: user.companyId },
+    };
+
+    const users = await strapi.entityService.findMany('plugin::users-permissions.user', ctx.query);
+
+    const sanitizedUsers = users.map((u) => sanitizeOutput(u));
+
+    ctx.body = sanitizedUsers;
   };
 
   return plugin;
