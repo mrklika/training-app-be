@@ -12,7 +12,8 @@
   "pluginOptions": {},
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "category": {
       "type": "relation",
@@ -51,6 +52,11 @@
       "target": "api::company.company",
       "inversedBy": "trainings",
       "required": true
+    },
+    "isActive": {
+      "type": "boolean",
+      "required": true,
+      "default": true
     }
   }
 }
