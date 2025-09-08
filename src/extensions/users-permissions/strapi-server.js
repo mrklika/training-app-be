@@ -42,9 +42,7 @@ module.exports = (plugin) => {
   };
 
   /**
-   * Override the `me` controller for the users-permissions plugin.
-   * Returns the currently authenticated user with their company populated,
-   * excluding sensitive fields.
+   * GET /me override
    */
   plugin.controllers.user.me = async (ctx) => {
     // Fetch the authenticated user from the database
