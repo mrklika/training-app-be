@@ -100,7 +100,7 @@ module.exports = (plugin) => {
       'plugin::users-permissions.user',
       {
         filters: { documentId },
-        populate: ['company'],
+        populate: ['company', 'role'],
       }
     );
 
@@ -109,6 +109,25 @@ module.exports = (plugin) => {
     // Ověř, že patří do stejné company
     if (userToUpdate.company?.documentId !== currentUser.companyId) {
       return ctx.forbidden('Not authorized to manipulate the record');
+    }
+
+    const blocked = ctx.request.body?.blocked;
+
+    if (blocked === true) {
+      const activeAuthorsCount = await strapi.db.query('plugin::users-permissions.user').count({
+        where: {
+          company: { documentId: currentUser.companyId },
+          blocked: false,
+          role: { type: 'author' },
+        },
+      });
+
+      // Pokud je aktivní author pouze tento
+      const isCurrentUserAuthor = userToUpdate.role?.type === 'author';
+
+      if (activeAuthorsCount <= 1 && isCurrentUserAuthor) {
+        return ctx.badRequest('Cannot block the last active author in the company');
+      }
     }
 
     // Zajisti správné přiřazení company
