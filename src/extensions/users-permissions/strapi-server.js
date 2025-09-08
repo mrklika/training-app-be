@@ -81,5 +81,53 @@ module.exports = (plugin) => {
     ctx.body = sanitizedUsers;
   };
 
+  /**
+   * PUT /users/:id override
+   */
+  plugin.controllers.user.update = async (ctx) => {
+    await populateUserFromToken(ctx);
+    const currentUser = ctx.state.user;
+
+    if (!currentUser?.companyId) {
+      return ctx.unauthorized('User has no company');
+    }
+
+    const documentId = ctx.params.id;
+    if (!documentId) return ctx.badRequest('Missing record id');
+
+    // Najdi uživatele podle documentId
+    const [userToUpdate] = await strapi.entityService.findMany(
+      'plugin::users-permissions.user',
+      {
+        filters: { documentId },
+        populate: ['company'],
+      }
+    );
+
+    if (!userToUpdate) return ctx.notFound('User not found');
+
+    // Ověř, že patří do stejné company
+    if (userToUpdate.company?.documentId !== currentUser.companyId) {
+      return ctx.forbidden('Not authorized to manipulate the record');
+    }
+
+    // Zajisti správné přiřazení company
+    if (ctx.request.body?.data) {
+      ctx.request.body.data.company = currentUser.companyId;
+    }
+
+    // Proveď update přes interní PK
+    const updatedUser = await strapi.entityService.update(
+      'plugin::users-permissions.user',
+      userToUpdate.id,
+      {
+        data: ctx.request.body,
+        populate: ['company'],
+      }
+    );
+
+    ctx.body = sanitizeOutput(updatedUser);
+  };
+
   return plugin;
 };
