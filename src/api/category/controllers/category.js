@@ -1,9 +1,3 @@
-'use strict';
+import baseController from '../../../controllers/base.js';
 
-/**
- *  category controller
- */
-
-const { createCoreController } = require('@strapi/strapi').factories;
-
-module.exports = createCoreController('api::category.category');
+export default baseController('api::category.category');

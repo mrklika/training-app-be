@@ -1,9 +1,3 @@
-'use strict';
+import baseController from '../../../controllers/base.js';
 
-/**
- * training controller
- */
-
-const { createCoreController } = require('@strapi/strapi').factories;
-
-module.exports = createCoreController('api::training.training');
+export default baseController('api::training.training');
