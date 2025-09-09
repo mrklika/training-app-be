@@ -12,26 +12,28 @@
   "pluginOptions": {},
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "unique": true
     },
     "address": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "city": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "zip": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "country": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "vatId": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "unique": true
     },
     "categories": {
       "type": "relation",

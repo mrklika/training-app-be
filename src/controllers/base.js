@@ -151,12 +151,17 @@ module.exports = (uid) =>
       await this.populateUserFromToken(ctx);
       const user = ctx.state.user;
 
-      if (!user?.companyId) return ctx.unauthorized('User has no company');
+      // create company exception
+      if (ctx.request.url.startsWith('/api/companies')) {
+        return await super.create(ctx);
+      }
 
-      // Assign companyId to the new record
+      if (!user?.companyId) {
+        return ctx.unauthorized('User has no company');
+      }
+
       ctx.request.body.data.company = user.companyId;
 
-      // Call the default core create logic
       return await super.create(ctx);
     },
 

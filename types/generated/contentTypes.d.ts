@@ -385,8 +385,7 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
-      Schema.Attribute.Required;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -416,13 +415,13 @@ export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    address: Schema.Attribute.String & Schema.Attribute.Required;
+    address: Schema.Attribute.String;
     categories: Schema.Attribute.Relation<
       'oneToMany',
       'api::category.category'
     >;
-    city: Schema.Attribute.String & Schema.Attribute.Required;
-    country: Schema.Attribute.String & Schema.Attribute.Required;
+    city: Schema.Attribute.String;
+    country: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -432,7 +431,7 @@ export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
       'api::company.company'
     > &
       Schema.Attribute.Private;
-    name: Schema.Attribute.String;
+    name: Schema.Attribute.String & Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
     trainings: Schema.Attribute.Relation<'oneToMany', 'api::training.training'>;
     updatedAt: Schema.Attribute.DateTime;
@@ -446,8 +445,8 @@ export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::user-training.user-training'
     >;
-    vatId: Schema.Attribute.BigInteger;
-    zip: Schema.Attribute.String & Schema.Attribute.Required;
+    vatId: Schema.Attribute.BigInteger & Schema.Attribute.Unique;
+    zip: Schema.Attribute.String;
   };
 }
 
@@ -506,8 +505,7 @@ export interface ApiUserTrainingUserTraining
     certification: Schema.Attribute.Media<
       'images' | 'videos' | 'audios' | 'files'
     >;
-    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
-      Schema.Attribute.Required;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'>;
     completeDate: Schema.Attribute.Date;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -997,6 +995,7 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.Private;
     email: Schema.Attribute.Email &
       Schema.Attribute.Required &
+      Schema.Attribute.Unique &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;

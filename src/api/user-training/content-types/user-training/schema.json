@@ -43,8 +43,7 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::company.company",
-      "inversedBy": "userTrainings",
-      "required": true
+      "inversedBy": "userTrainings"
     }
   }
 }
