@@ -157,7 +157,6 @@ module.exports = (plugin) => {
     const documentId = ctx.params.id;
     if (!documentId) return ctx.badRequest('Missing record id');
 
-    // Najdi uživatele podle documentId
     const [userToUpdate] = await strapi.entityService.findMany(
       'plugin::users-permissions.user',
       {
@@ -168,7 +167,6 @@ module.exports = (plugin) => {
 
     if (!userToUpdate) return ctx.notFound('User not found');
 
-    // Ověř, že patří do stejné company
     if (userToUpdate.company?.documentId !== currentUser.companyId) {
       return ctx.forbidden('Not authorized to manipulate the record');
     }
@@ -184,7 +182,6 @@ module.exports = (plugin) => {
         },
       });
 
-      // Pokud je aktivní author pouze tento
       const isCurrentUserAuthor = userToUpdate.role?.type === 'author';
 
       if (activeAuthorsCount <= 1 && isCurrentUserAuthor) {
@@ -192,12 +189,10 @@ module.exports = (plugin) => {
       }
     }
 
-    // Zajisti správné přiřazení company
     if (ctx.request.body?.data) {
       ctx.request.body.data.company = currentUser.companyId;
     }
 
-    // Proveď update přes interní PK
     const updatedUser = await strapi.entityService.update(
       'plugin::users-permissions.user',
       userToUpdate.id,
@@ -266,6 +261,13 @@ module.exports = (plugin) => {
     if (!user) {
       return ctx.badRequest('Failed to create user');
     }
+
+    // Send forgot password email
+    ctx.request.body = { email: user.email };
+    await strapi
+      .plugin('users-permissions')
+      .controller('auth')
+      .forgotPassword(ctx);
 
     // Return sanitized user
     ctx.body = sanitizeOutput(user);
