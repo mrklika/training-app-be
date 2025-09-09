@@ -1,3 +1,8 @@
+// This file controls all the users-permissions actions
+// POST should always add companyId do the request by authenticated user
+// Other methods should be checked for user x companyId
+// Permissions for executions are handled in ADMIN (only role author can perform actions)
+
 module.exports = (plugin) => {
 
   const rawAuth = plugin.controllers.auth({ strapi });
@@ -205,5 +210,93 @@ module.exports = (plugin) => {
     ctx.body = sanitizeOutput(updatedUser);
   };
 
+  /**
+   * POST /users override
+   */
+  plugin.controllers.user.create = async (ctx) => {
+    await populateUserFromToken(ctx);
+    const currentUser = ctx.state.user;
+
+    if (!currentUser?.companyId) {
+      return ctx.unauthorized('User has no company');
+    }
+
+    const { username, email, fullName, mode } = ctx.request.body;
+
+    // Validate required fields
+    if (!username || !email || !fullName || !mode) {
+      return ctx.badRequest('Some of the values needed for user creation are missing');
+    }
+
+    // Find authenticated role
+    let role;
+
+    if (mode === 'STUDENT') {
+      role  = await strapi.db.query('plugin::users-permissions.role').findOne({
+        where: { type: 'authenticated' },
+      });
+    } else {
+      role = await strapi.db.query('plugin::users-permissions.role').findOne({
+        where: { type: 'author' },
+      });
+    }
+
+    if (!role) {
+      return ctx.badRequest('Role not found');
+    }
+
+    // Generate random password
+    const password = generateRandomPassword();
+
+    // Prepare user data
+    const userData = {
+      username,
+      email,
+      password,
+      fullName,
+      company: currentUser.companyId,
+      role: role.id,
+    };
+
+    // Create user
+    const user = await strapi.entityService.create('plugin::users-permissions.user', {
+      data: userData,
+    });
+
+    if (!user) {
+      return ctx.badRequest('Failed to create user');
+    }
+
+    // Return sanitized user
+    ctx.body = sanitizeOutput(user);
+  };
+
   return plugin;
+};
+
+/**
+ * Helper function to generate a random password meeting the regex pattern
+ * /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/
+ */
+const generateRandomPassword = () => {
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const digits = '0123456789';
+  const special = '!@#$%^&*(),.?":{}|<>';
+  const allChars = uppercase + uppercase.toLowerCase() + digits + special;
+
+  // Ensure at least one uppercase, one digit, one special character
+  let password = '';
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += digits[Math.floor(Math.random() * digits.length)];
+  password += special[Math.floor(Math.random() * special.length)];
+
+  // Fill the rest to reach minimum length of 8
+  for (let i = password.length; i < 8; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+
+  // Shuffle the password
+  password = password.split('').sort(() => Math.random() - 0.5).join('');
+
+  return password;
 };

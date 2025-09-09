@@ -1,3 +1,8 @@
+// This file controls all the CRUD actions
+// POST should always add companyId do the request by authenticated user
+// Other methods should be checked for user x companyId
+// Permissions for executions are handled in ADMIN (only role author can perform actions)
+
 const { factories } = require('@strapi/strapi');
 
 module.exports = (uid) =>

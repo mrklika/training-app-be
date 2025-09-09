@@ -1,3 +1,7 @@
+// This file controls custom upload flow
+// Methods should be checked for user x companyId
+// Permissions for executions are handled in ADMIN (only role author can perform actions)
+
 module.exports = (config, { strapi }) => {
   return async (ctx, next) => {
     // Only process requests for upload endpoints
