@@ -13,7 +13,7 @@
   "attributes": {
     "name": {
       "type": "string",
-      "unique": true
+      "unique": false
     },
     "address": {
       "type": "string",
@@ -33,7 +33,7 @@
     },
     "vatId": {
       "type": "biginteger",
-      "unique": true
+      "unique": false
     },
     "categories": {
       "type": "relation",

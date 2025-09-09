@@ -44,7 +44,8 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::company.company",
-      "inversedBy": "trainings"
+      "inversedBy": "trainings",
+      "required": true
     },
     "isActive": {
       "type": "boolean",

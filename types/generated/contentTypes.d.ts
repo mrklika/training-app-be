@@ -431,7 +431,7 @@ export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
       'api::company.company'
     > &
       Schema.Attribute.Private;
-    name: Schema.Attribute.String & Schema.Attribute.Unique;
+    name: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     trainings: Schema.Attribute.Relation<'oneToMany', 'api::training.training'>;
     updatedAt: Schema.Attribute.DateTime;
@@ -445,7 +445,7 @@ export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::user-training.user-training'
     >;
-    vatId: Schema.Attribute.BigInteger & Schema.Attribute.Unique;
+    vatId: Schema.Attribute.BigInteger;
     zip: Schema.Attribute.String;
   };
 }

@@ -25,7 +25,8 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::company.company",
-      "inversedBy": "categories"
+      "inversedBy": "categories",
+      "required": true
     }
   }
 }

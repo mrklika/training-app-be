@@ -144,8 +144,30 @@ module.exports = (uid) =>
     },
 
     /**
-     * Create a new record.
-     * Automatically assigns the current user's companyId.
+    * Create a new record.
+    * Automatically assigns the current user's companyId.
+    */
+    async create(ctx) {
+      await this.populateUserFromToken(ctx);
+      const user = ctx.state.user;
+
+      // create company exception
+      if (ctx.request.url.startsWith('/api/companies')) {
+        return await super.create(ctx);
+      }
+
+      if (!user?.companyId) {
+        return ctx.unauthorized('User has no company');
+      }
+
+      ctx.request.body.data.company = user.companyId;
+
+      return await super.create(ctx);
+    },
+
+    /**
+     * Update a new record.
+     * Check current user's companyId.
      */
     async update(ctx) {
       await this.populateUserFromToken(ctx);
@@ -172,12 +194,12 @@ module.exports = (uid) =>
           return ctx.forbidden('Not authorized to update this company');
         }
       } else {
-        // U jiných entit kontrolujeme company association
+        // Check company association on different entities
         if (record.company?.documentId !== user.companyId) {
           return ctx.forbidden('Not authorized to manipulate the record');
         }
 
-        // Přiřadíme companyId, aby byla konzistence
+        // Assign companyId
         if (ctx.request.body?.data) {
           ctx.request.body.data.company = user.companyId;
         }
