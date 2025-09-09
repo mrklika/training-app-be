@@ -147,28 +147,6 @@ module.exports = (uid) =>
      * Create a new record.
      * Automatically assigns the current user's companyId.
      */
-    async create(ctx) {
-      await this.populateUserFromToken(ctx);
-      const user = ctx.state.user;
-
-      // create company exception
-      if (ctx.request.url.startsWith('/api/companies')) {
-        return await super.create(ctx);
-      }
-
-      if (!user?.companyId) {
-        return ctx.unauthorized('User has no company');
-      }
-
-      ctx.request.body.data.company = user.companyId;
-
-      return await super.create(ctx);
-    },
-
-    /**
-     * Update an existing record.
-     * Checks that the record belongs to the current user's company.
-     */
     async update(ctx) {
       await this.populateUserFromToken(ctx);
       const user = ctx.state.user;
@@ -178,22 +156,31 @@ module.exports = (uid) =>
       const documentId = ctx.params.id;
       if (!documentId) return ctx.badRequest('Missing record id');
 
-      // Find the record using documentId instead of Strapi internal id
+      const isCompanyEntity = uid === 'api::company.company';
+
       const record = await strapi.documents(uid).findOne({
         documentId,
-        populate: ['company'],
+        ...(isCompanyEntity ? {} : { populate: ['company'] }),
       });
 
       if (!record) return ctx.notFound('Record not found');
 
-      // Multi-tenant check: the record must belong to user's company
-      if (record.company?.documentId !== user.companyId) {
-        return ctx.forbidden('Not authorized to manipulate the record');
-      }
+      // Multi-tenant check
+      if (isCompanyEntity) {
+        // U company kontrolujeme jen documentId
+        if (record.documentId !== user.companyId) {
+          return ctx.forbidden('Not authorized to update this company');
+        }
+      } else {
+        // U jiných entit kontrolujeme company association
+        if (record.company?.documentId !== user.companyId) {
+          return ctx.forbidden('Not authorized to manipulate the record');
+        }
 
-      // Update companyId to ensure consistency
-      if (ctx.request.body?.data) {
-        ctx.request.body.data.company = user.companyId;
+        // Přiřadíme companyId, aby byla konzistence
+        if (ctx.request.body?.data) {
+          ctx.request.body.data.company = user.companyId;
+        }
       }
 
       return await super.update(ctx);

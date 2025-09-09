@@ -1,4 +1,61 @@
 module.exports = (plugin) => {
+
+  const rawAuth = plugin.controllers.auth({ strapi });
+
+  const auth = ({ strapi }) => {
+    return {
+      ...rawAuth,
+      register: async (ctx) => {
+        const { username, email, password, fullName, company } = ctx.request.body;
+
+        // Validate required fields
+        if (!username || !email || !password || !fullName || !company) {
+          return ctx.badRequest('Some of the values needed for registration are missing');
+        }
+
+        // Find Author role
+        const authorRole = await strapi.db.query('plugin::users-permissions.role').findOne({
+          where: { type: 'author' },
+        });
+
+        if (!authorRole) {
+          return ctx.badRequest('Role not found');
+        }
+
+        // Prepare user data
+        const userData = {
+          username,
+          email,
+          password,
+          fullName,
+          company,
+          role: authorRole.id,
+        };
+
+        // Create user
+        const user = await strapi.entityService.create('plugin::users-permissions.user', {
+          data: userData,
+          populate: ['company', 'role'], // pokud chceš rovnou načíst relace
+        });
+
+        if (!user) {
+          return ctx.badRequest('Failed to register user');
+        }
+
+        // Generate JWT
+        const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
+
+        // Return sanitized user
+        ctx.body = {
+          jwt,
+          user: sanitizeOutput(user),
+        };
+      },
+    };
+  };
+
+  plugin.controllers.auth = auth;
+
   /**
    * Helper function to sanitize user output.
    * Removes sensitive fields like password, reset tokens, and confirmation tokens.
