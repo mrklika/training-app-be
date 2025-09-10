@@ -9,6 +9,7 @@ export default ({ env }) => ({
   email: {
     config: {
       provider: 'nodemailer',
+      // For email testing purpose
       providerOptions: {
         host: 'smtp.ethereal.email',
         port: 587,
