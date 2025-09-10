@@ -13,8 +13,8 @@ export default ({ env }) => ({
         host: 'smtp.ethereal.email',
         port: 587,
         auth: {
-          user: 'quincy.hane@ethereal.email',
-          pass: 'dXQT2snqRVqqZn8trp',
+          user: 'nona.kassulke7@ethereal.email',
+          pass: '57tjrhKhdRQf91zzMN',
         },
       },
       settings: {

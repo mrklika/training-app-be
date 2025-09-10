@@ -3,13 +3,98 @@
 // Other methods should be checked for user x companyId
 // Permissions for executions are handled in ADMIN (only role author can perform actions)
 
+const bcrypt = require('bcrypt');
+
 module.exports = (plugin) => {
 
-  const rawAuth = plugin.controllers.auth({ strapi });
+  /**
+   * Helper function to sanitize user output.
+   * Removes sensitive fields like password, reset tokens, and confirmation tokens.
+   */
+  const sanitizeOutput = (user) => {
+    const {
+      password,
+      resetPasswordToken,
+      confirmationToken,
+      ...sanitizedUser
+    } = user;
 
-  const auth = ({ strapi }) => {
-    return {
-      ...rawAuth,
+    return sanitizedUser;
+  };
+
+  const populateUserFromToken = async (ctx) => {
+    const authHeader = ctx.request.header.authorization;
+    if (!authHeader) return;
+
+    const token = authHeader.replace('Bearer ', '');
+    try {
+      const { id } = await strapi.plugin('users-permissions').service('jwt').verify(token);
+
+      if (id) {
+        const user = await strapi.entityService.findOne(
+          'plugin::users-permissions.user',
+          id,
+          { populate: ['company'] }
+        );
+
+        if (user) {
+          ctx.state.user = {
+            id: user.documentId ?? undefined,
+            companyId: user.company?.documentId ?? undefined,
+          };
+        }
+      }
+    } catch (err) {
+      // ignore invalid token
+    }
+  };
+
+  const rawAuth = plugin.controllers.auth({ strapi });
+    const auth = ({ strapi }) => {
+      return {
+        ...rawAuth,
+        callback: async(ctx) => {
+        try {
+          const { identifier, password } = ctx.request.body;
+
+          if (!identifier || !password) {
+            return ctx.badRequest('Identifier and password are required');
+          }
+
+          const user = await strapi.db.query('plugin::users-permissions.user').findOne({
+            where: {
+              $or: [{ email: identifier }],
+            },
+          });
+
+          if (!user) {
+            return ctx.badRequest('Invalid credentials');
+          }
+
+          if (!user.confirmed) {
+            return ctx.badRequest('Your account email is not confirmed');
+          }
+
+          if (user.blocked) {
+            return ctx.badRequest('Your account has been blocked');
+          }
+
+          const valid = await bcrypt.compare(password, user.password);
+          
+          if (!valid) {
+            return ctx.badRequest('Invalid credentials');
+          }
+
+          const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
+
+          ctx.body = {
+            jwt,
+            user: sanitizeOutput(user),
+          };
+        } catch (err) {
+
+        }
+      },
       register: async (ctx) => {
         const { username, email, password, fullName, company } = ctx.request.body;
 
@@ -56,52 +141,48 @@ module.exports = (plugin) => {
           user: sanitizeOutput(user),
         };
       },
+      async resetPassword(ctx) {
+
+        const { password, code } = ctx.request.body;
+
+        if (!password || !code) {
+          return ctx.badRequest('Password and code are required');
+        }
+
+        // Find user by resetPasswordToken
+        const user = await strapi.db.query('plugin::users-permissions.user').findOne({
+          where: { resetPasswordToken: code },
+        });
+
+        if (!user) {
+          return ctx.badRequest('Invalid reset password token');
+        }
+
+        // Update user's password and clear token
+        await strapi.entityService.update(
+          'plugin::users-permissions.user',
+          user.id,
+          {
+            data: {
+              password,
+              resetPasswordToken: null,
+              confirmed: true,
+            },
+          }
+        );
+
+        const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
+
+        ctx.body = {
+          jwt,
+          user: sanitizeOutput(user),
+        };
+      }
+
     };
   };
 
   plugin.controllers.auth = auth;
-
-  /**
-   * Helper function to sanitize user output.
-   * Removes sensitive fields like password, reset tokens, and confirmation tokens.
-   */
-  const sanitizeOutput = (user) => {
-    const {
-      password,
-      resetPasswordToken,
-      confirmationToken,
-      ...sanitizedUser
-    } = user;
-
-    return sanitizedUser;
-  };
-
-  const populateUserFromToken = async (ctx) => {
-    const authHeader = ctx.request.header.authorization;
-    if (!authHeader) return;
-
-    const token = authHeader.replace('Bearer ', '');
-    try {
-      const { id } = await strapi.plugin('users-permissions').service('jwt').verify(token);
-
-      if (id) {
-        const user = await strapi.entityService.findOne(
-          'plugin::users-permissions.user',
-          id,
-          { populate: ['company'] }
-        );
-
-        if (user) {
-          ctx.state.user = {
-            id: user.documentId ?? undefined,
-            companyId: user.company?.documentId ?? undefined,
-          };
-        }
-      }
-    } catch (err) {
-      // ignore invalid token
-    }
-  };
 
   /**
    * GET /me override
@@ -293,7 +374,7 @@ const generateRandomPassword = () => {
   password += special[Math.floor(Math.random() * special.length)];
 
   // Fill the rest to reach minimum length of 8
-  for (let i = password.length; i < 8; i++) {
+  for (let i = password.length; i < 16; i++) {
     password += allChars[Math.floor(Math.random() * allChars.length)];
   }
 
