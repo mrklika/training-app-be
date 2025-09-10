@@ -54,36 +54,122 @@ module.exports = (plugin) => {
       return {
         ...rawAuth,
         callback: async(ctx) => {
-        try {
-          const { identifier, password } = ctx.request.body;
+          try {
+            const { identifier, password } = ctx.request.body;
 
-          if (!identifier || !password) {
-            return ctx.badRequest('Identifier and password are required');
+            if (!identifier || !password) {
+              return ctx.badRequest('Identifier and password are required');
+            }
+
+            const user = await strapi.db.query('plugin::users-permissions.user').findOne({
+              where: {
+                $or: [{ email: identifier }],
+              },
+            });
+
+            if (!user) {
+              return ctx.badRequest('Invalid credentials');
+            }
+
+            if (!user.confirmed) {
+              return ctx.badRequest('Your account email is not confirmed');
+            }
+
+            if (user.blocked) {
+              return ctx.badRequest('Your account has been blocked');
+            }
+
+            const valid = await bcrypt.compare(password, user.password);
+            
+            if (!valid) {
+              return ctx.badRequest('Invalid credentials');
+            }
+
+            const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
+
+            ctx.body = {
+              jwt,
+              user: sanitizeOutput(user),
+            };
+          } catch (err) {
+
+          }
+        },
+        register: async (ctx) => {
+          const { username, email, password, fullName, company } = ctx.request.body;
+
+          // Validate required fields
+          if (!username || !email || !password || !fullName || !company) {
+            return ctx.badRequest('Some of the values needed for registration are missing');
           }
 
-          const user = await strapi.db.query('plugin::users-permissions.user').findOne({
-            where: {
-              $or: [{ email: identifier }],
-            },
+          // Find Author role
+          const authorRole = await strapi.db.query('plugin::users-permissions.role').findOne({
+            where: { type: 'author' },
+          });
+
+          if (!authorRole) {
+            return ctx.badRequest('Role not found');
+          }
+
+          // Prepare user data
+          const userData = {
+            username,
+            email,
+            password,
+            fullName,
+            company,
+            role: authorRole.id,
+            confirmationToken: crypto.randomUUID(),
+          };
+
+          // Create user
+          const user = await strapi.entityService.create('plugin::users-permissions.user', {
+            data: userData,
+            populate: ['company', 'role'],
           });
 
           if (!user) {
-            return ctx.badRequest('Invalid credentials');
+            return ctx.badRequest('Failed to register user');
           }
 
-          if (!user.confirmed) {
-            return ctx.badRequest('Your account email is not confirmed');
+          try {
+            await strapi.plugin('users-permissions').service('user').sendConfirmationEmail(user);
+          } catch (err) {
+            return ctx.badRequest('Failed to send confirmation email');
           }
 
-          if (user.blocked) {
-            return ctx.badRequest('Your account has been blocked');
+          return { success: true }
+        },
+        resetPassword: async (ctx) => {
+
+          const { password, code } = ctx.request.body;
+
+          if (!password || !code) {
+            return ctx.badRequest('Password and code are required');
           }
 
-          const valid = await bcrypt.compare(password, user.password);
-          
-          if (!valid) {
-            return ctx.badRequest('Invalid credentials');
+          // Find user by resetPasswordToken
+          const user = await strapi.db.query('plugin::users-permissions.user').findOne({
+            where: { resetPasswordToken: code },
+          });
+
+          if (!user) {
+            return ctx.badRequest('Invalid reset password token');
           }
+
+          // Update user's password and clear token
+          await strapi.entityService.update(
+            'plugin::users-permissions.user',
+            user.id,
+            {
+              data: {
+                password,
+                resetPasswordToken: null,
+                confirmed: true,
+              },
+            }
+          );
 
           const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
 
@@ -91,94 +177,7 @@ module.exports = (plugin) => {
             jwt,
             user: sanitizeOutput(user),
           };
-        } catch (err) {
-
         }
-      },
-      register: async (ctx) => {
-        const { username, email, password, fullName, company } = ctx.request.body;
-
-        // Validate required fields
-        if (!username || !email || !password || !fullName || !company) {
-          return ctx.badRequest('Some of the values needed for registration are missing');
-        }
-
-        // Find Author role
-        const authorRole = await strapi.db.query('plugin::users-permissions.role').findOne({
-          where: { type: 'author' },
-        });
-
-        if (!authorRole) {
-          return ctx.badRequest('Role not found');
-        }
-
-        // Prepare user data
-        const userData = {
-          username,
-          email,
-          password,
-          fullName,
-          company,
-          role: authorRole.id,
-        };
-
-        // Create user
-        const user = await strapi.entityService.create('plugin::users-permissions.user', {
-          data: userData,
-          populate: ['company', 'role'], // pokud chceš rovnou načíst relace
-        });
-
-        if (!user) {
-          return ctx.badRequest('Failed to register user');
-        }
-
-        // Generate JWT
-        const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
-
-        // Return sanitized user
-        ctx.body = {
-          jwt,
-          user: sanitizeOutput(user),
-        };
-      },
-      async resetPassword(ctx) {
-
-        const { password, code } = ctx.request.body;
-
-        if (!password || !code) {
-          return ctx.badRequest('Password and code are required');
-        }
-
-        // Find user by resetPasswordToken
-        const user = await strapi.db.query('plugin::users-permissions.user').findOne({
-          where: { resetPasswordToken: code },
-        });
-
-        if (!user) {
-          return ctx.badRequest('Invalid reset password token');
-        }
-
-        // Update user's password and clear token
-        await strapi.entityService.update(
-          'plugin::users-permissions.user',
-          user.id,
-          {
-            data: {
-              password,
-              resetPasswordToken: null,
-              confirmed: true,
-            },
-          }
-        );
-
-        const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
-
-        ctx.body = {
-          jwt,
-          user: sanitizeOutput(user),
-        };
-      }
-
     };
   };
 
