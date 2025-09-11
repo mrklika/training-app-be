@@ -62,6 +62,21 @@
     "contactEmail": {
       "type": "email",
       "required": false
+    },
+    "stripeCustomerId": {
+      "type": "string"
+    },
+    "subscriptions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subscription.subscription",
+      "mappedBy": "company"
+    },
+    "invoices": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::invoice.invoice",
+      "mappedBy": "company"
     }
   }
 }

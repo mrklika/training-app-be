@@ -12,7 +12,8 @@
   "pluginOptions": {},
   "attributes": {
     "dueDate": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "student": {
       "type": "relation",

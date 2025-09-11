@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "invoices",
+  "info": {
+    "singularName": "invoice",
+    "pluralName": "invoices",
+    "displayName": "Invoice"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "stripeInvoiceId": {
+      "type": "string",
+      "required": true
+    },
+    "company": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::company.company",
+      "inversedBy": "invoices"
+    },
+    "amount": {
+      "type": "integer",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "required": true
+    },
+    "invoiceStatus": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "paid",
+        "failed",
+        "pending"
+      ]
+    },
+    "raw": {
+      "type": "json",
+      "required": true
+    }
+  }
+}
