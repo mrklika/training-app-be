@@ -385,8 +385,7 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
-      Schema.Attribute.Required;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -422,6 +421,7 @@ export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
       'api::category.category'
     >;
     city: Schema.Attribute.String;
+    contactEmail: Schema.Attribute.Email;
     country: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -463,8 +463,7 @@ export interface ApiTrainingTraining extends Struct.CollectionTypeSchema {
   };
   attributes: {
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
-    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
-      Schema.Attribute.Required;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'>;
     cover: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -507,13 +506,13 @@ export interface ApiUserTrainingUserTraining
     certification: Schema.Attribute.Media<
       'images' | 'videos' | 'audios' | 'files'
     >;
-    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'> &
-      Schema.Attribute.Required;
+    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'>;
     completeDate: Schema.Attribute.Date;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     dueDate: Schema.Attribute.Date;
+    emailSentSeverity: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

@@ -58,6 +58,10 @@
       "relation": "oneToMany",
       "target": "api::user-training.user-training",
       "mappedBy": "company"
+    },
+    "contactEmail": {
+      "type": "email",
+      "required": false
     }
   }
 }
