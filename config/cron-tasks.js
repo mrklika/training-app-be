@@ -1,3 +1,5 @@
+const dayjs = require("dayjs");
+
 module.exports = {
   myJob: {
     task: async ({ strapi }) => {
@@ -60,7 +62,7 @@ module.exports = {
               {
                 studentFullName: training.student.fullName,
                 trainingTitle: training.training.title,
-                trainingDueDate: training.dueDate,
+                trainingDueDate: dayjs(training.dueDate).format("DD. MM. YYYY"),
               }
             );
 
