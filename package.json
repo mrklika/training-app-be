@@ -27,6 +27,7 @@
     "react-router-dom": "^6.0.0",
     "strapi-plugin-email-designer-5": "^0.0.7",
     "strapi-plugin-required-relation-field": "^0.3.0",
+    "stripe": "^18.5.0",
     "styled-components": "^6.0.0"
   },
   "engines": {
