@@ -3,7 +3,6 @@ const dayjs = require("dayjs");
 module.exports = {
   myJob: {
     task: async ({ strapi }) => {
-
       try {
         const now = new Date();
         const oneMonthFromNow = new Date();
