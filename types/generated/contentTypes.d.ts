@@ -436,8 +436,8 @@ export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     stripeCustomerId: Schema.Attribute.String;
-    subscriptions: Schema.Attribute.Relation<
-      'oneToMany',
+    subscription: Schema.Attribute.Relation<
+      'oneToOne',
       'api::subscription.subscription'
     >;
     trainings: Schema.Attribute.Relation<'oneToMany', 'api::training.training'>;
@@ -465,7 +465,7 @@ export interface ApiInvoiceInvoice extends Struct.CollectionTypeSchema {
     singularName: 'invoice';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     amount: Schema.Attribute.Integer & Schema.Attribute.Required;
@@ -506,6 +506,7 @@ export interface ApiPlanPlan extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     currency: Schema.Attribute.String & Schema.Attribute.Required;
+    description: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::plan.plan'> &
       Schema.Attribute.Private;
@@ -513,7 +514,9 @@ export interface ApiPlanPlan extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String & Schema.Attribute.Required;
     price: Schema.Attribute.Integer & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
-    reference: Schema.Attribute.Enumeration<['basic', 'pro', 'enterprise']> &
+    reference: Schema.Attribute.Enumeration<
+      ['free', 'basic', 'pro', 'enterprise']
+    > &
       Schema.Attribute.Required;
     stripePriceId: Schema.Attribute.String & Schema.Attribute.Required;
     subscriptions: Schema.Attribute.Relation<
@@ -535,15 +538,15 @@ export interface ApiSubscriptionSubscription
     singularName: 'subscription';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     cancelAtPeriodEnd: Schema.Attribute.Boolean & Schema.Attribute.Required;
-    company: Schema.Attribute.Relation<'manyToOne', 'api::company.company'>;
+    company: Schema.Attribute.Relation<'oneToOne', 'api::company.company'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    currentPeriodEnd: Schema.Attribute.Date & Schema.Attribute.Required;
+    currentPeriodEnd: Schema.Attribute.Date;
     currentPeriodStart: Schema.Attribute.Date & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -553,8 +556,8 @@ export interface ApiSubscriptionSubscription
       Schema.Attribute.Private;
     plan: Schema.Attribute.Relation<'manyToOne', 'api::plan.plan'>;
     publishedAt: Schema.Attribute.DateTime;
-    stripePriceId: Schema.Attribute.String & Schema.Attribute.Required;
-    stripeSubscriptionId: Schema.Attribute.String & Schema.Attribute.Required;
+    stripePriceId: Schema.Attribute.String;
+    stripeSubscriptionId: Schema.Attribute.String;
     subscriptionStatus: Schema.Attribute.Enumeration<
       [
         'active',

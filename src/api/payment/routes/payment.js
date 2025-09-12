@@ -20,5 +20,15 @@ module.exports = {
         }
       },
     },
+    {
+      method: "GET",
+      path: "/payment/subscription",
+      handler: "payment.subscription",
+      config: { 
+        auth: {
+          public: false
+        }
+      },
+    },
   ],
 };

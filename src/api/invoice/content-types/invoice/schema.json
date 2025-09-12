@@ -7,7 +7,7 @@
     "displayName": "Invoice"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {

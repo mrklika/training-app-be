@@ -15,6 +15,7 @@
       "type": "enumeration",
       "required": true,
       "enum": [
+        "free",
         "basic",
         "pro",
         "enterprise"
@@ -45,6 +46,10 @@
       "relation": "oneToMany",
       "target": "api::subscription.subscription",
       "mappedBy": "plan"
+    },
+    "description": {
+      "type": "string",
+      "required": true
     }
   }
 }

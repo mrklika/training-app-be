@@ -7,23 +7,23 @@
     "displayName": "Subscription"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
     "company": {
       "type": "relation",
-      "relation": "manyToOne",
+      "relation": "oneToOne",
       "target": "api::company.company",
-      "inversedBy": "subscriptions"
+      "mappedBy": "subscription"
     },
     "stripeSubscriptionId": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "stripePriceId": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "plan": {
       "type": "relation",
@@ -49,7 +49,7 @@
     },
     "currentPeriodEnd": {
       "type": "date",
-      "required": true
+      "required": false
     },
     "cancelAtPeriodEnd": {
       "type": "boolean",

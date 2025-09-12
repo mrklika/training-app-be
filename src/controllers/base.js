@@ -156,6 +156,7 @@ module.exports = (uid) =>
       await this.populateUserFromToken(ctx);
       const user = ctx.state.user;
 
+      // API COMPANY
       // create company exception
       if (ctx.request.url.startsWith('/api/companies')) {
         return await super.create(ctx);
@@ -163,6 +164,46 @@ module.exports = (uid) =>
 
       if (!user?.companyId) {
         return ctx.unauthorized('User has no company');
+      }
+
+      // API USER_TRAINING
+      if (ctx.request.url.startsWith('/api/user-trainings')) {
+        const studentId = ctx.request.body.data?.student;
+        const trainingId = ctx.request.body.data?.training;
+
+        if (studentId) {
+          const student = await strapi.db.query('plugin::users-permissions.user').findOne({
+            where: { documentId: studentId },
+            select: ['id', 'blocked', 'company'],
+          });
+
+          if (!student) {
+            return ctx.badRequest('Record not found');
+          }
+
+          if (student.blocked) {
+            return ctx.badRequest('Cannot assign training to blocked user');
+          }
+
+          if (student.company !== user.companyId) {
+            return ctx.forbidden('User does not belong to your company');
+          }
+        }
+
+        if (trainingId) {
+          const training = await strapi.db.query('api::training.training').findOne({
+            where: { documentId: trainingId },
+            select: ['id', 'company'],
+          });
+
+          if (!training) {
+            return ctx.badRequest('Record not found');
+          }
+
+          if (training.company !== user.companyId) {
+            return ctx.forbidden('Cannot assign training from a different company');
+          }
+        }
       }
 
       ctx.request.body.data.company = user.companyId;

@@ -66,11 +66,11 @@
     "stripeCustomerId": {
       "type": "string"
     },
-    "subscriptions": {
+    "subscription": {
       "type": "relation",
-      "relation": "oneToMany",
+      "relation": "oneToOne",
       "target": "api::subscription.subscription",
-      "mappedBy": "company"
+      "inversedBy": "company"
     },
     "invoices": {
       "type": "relation",

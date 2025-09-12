@@ -139,6 +139,14 @@ module.exports = (plugin) => {
             return ctx.badRequest('Failed to send confirmation email');
           }
 
+          try {
+            // Vytvořit rovnou free subscription přes payment service
+            const paymentService = strapi.service("api::payment.payment");
+            await paymentService.createSubscription(user.documentId, 'free');
+          } catch (err) {
+            return ctx.badRequest('Failed to create subscription for user', err);
+          }
+
           return { success: true }
         },
         resetPassword: async (ctx) => {
@@ -264,8 +272,8 @@ module.exports = (plugin) => {
 
       const isCurrentUserAuthor = userToUpdate.role?.type === 'author';
 
-      if (activeAuthorsCount <= 1 && isCurrentUserAuthor) {
-        return ctx.badRequest('Cannot block the last active author in the company');
+      if (activeAuthorsCount <= 1 && isCurrentUserAuthor && userToUpdate.documentId !== currentUser.documentId) {
+        return ctx.badRequest('Cannot block this author');
       }
     }
 

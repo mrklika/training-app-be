@@ -1,9 +1,3 @@
-'use strict';
+import baseController from '../../../controllers/base.js';
 
-/**
- * subscription controller
- */
-
-const { createCoreController } = require('@strapi/strapi').factories;
-
-module.exports = createCoreController('api::subscription.subscription');
+export default baseController('api::subscription.subscription');
